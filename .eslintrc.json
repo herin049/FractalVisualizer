@@ -1,0 +1,20 @@
+{
+    "extends": ["eslint:recommended", "airbnb", "prettier"],
+    "plugins": ["prettier"],
+    "rules": {
+        // Indent with 4 spaces
+        "indent": ["error", 4],
+
+        // Indent JSX with 4 spaces
+        "react/jsx-indent": ["error", 4],
+
+        // Indent props with 4 spaces
+        "react/jsx-indent-props": ["error", 4],
+        "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+        "arrow-body-style": 0,
+        "import/extensions": "off"
+    },
+    "env": {
+        "browser": true
+    }
+}
