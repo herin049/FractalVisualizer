@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import calcMandlebrot from '../math/mandlebrot.js';
+import MandlebrotCache from '../mandlebrot/MandlebrotCache.js';
+import { CACHE_BLOCK_SIZE } from '../constants.js';
+import { calcMandlebrotBlock } from '../math/mandlebrot.js';
 
 const Mandlebrot = ({ width, height }) => {
     const canvasRef = useRef(null);
@@ -33,25 +35,108 @@ const Mandlebrot = ({ width, height }) => {
         setImEnd(imStart + currentHeight * dy - newHeight * dy + newHeight);
     };
 
-    const renderMandlebrot = () => {
-        const ctx = canvasRef.current.getContext('2d');
-        const imageData = ctx.getImageData(0, 0, width, height);
-        const { data } = imageData;
-        for (let px = 0; px < width; px += 1) {
-            for (let py = 0; py < height; py += 1) {
-                const i = (py * width + px) * 4;
-                const x = reStart + (reEnd - reStart) * (px / width);
-                const y = imStart + (imEnd - imStart) * (py / height);
-                const z = calcMandlebrot(x, y, 1000);
+    const renderBlock = (
+        { x, y, zoom, data },
+        canvasCtx,
+        currentZoom,
+        offscreenCanvas,
+        offscreenCanvasCtx
+    ) => {
+        if (
+            x < reEnd &&
+            y < imEnd &&
+            x + CACHE_BLOCK_SIZE / zoom > reStart &&
+            y + CACHE_BLOCK_SIZE / zoom > imStart
+        ) {
+            const imageData = offscreenCanvasCtx.getImageData(
+                0,
+                0,
+                CACHE_BLOCK_SIZE,
+                CACHE_BLOCK_SIZE
+            );
 
-                data[i] = (z % 32) * 7;
-                data[i + 1] = (z % 32) * 7;
-                data[i + 2] = (z % 32) * 7;
-                data[i + 3] = 255;
+            for (let i = 0; i < CACHE_BLOCK_SIZE * CACHE_BLOCK_SIZE; i += 1) {
+                imageData.data[i * 4] = (data[i] % 32) * 7;
+                imageData.data[i * 4 + 1] = (data[i] % 32) * 7;
+                imageData.data[i * 4 + 2] = (data[i] % 32) * 7;
+                imageData.data[i * 4 + 3] = 255;
             }
-        }
 
-        ctx.putImageData(imageData, 0, 0);
+            offscreenCanvasCtx.putImageData(imageData, 0, 0);
+
+            let sx0 = 0;
+            let sy0 = 0;
+
+            if (x < reStart) {
+                sx0 = (reStart - x) * zoom;
+            }
+
+            if (y < imStart) {
+                sy0 = (imStart - y) * zoom;
+            }
+
+            let sx1 = CACHE_BLOCK_SIZE;
+            let sy1 = CACHE_BLOCK_SIZE;
+
+            if (x + CACHE_BLOCK_SIZE / zoom > reEnd) {
+                sx1 -= (x + CACHE_BLOCK_SIZE / zoom - reEnd) * zoom;
+            }
+
+            if (y + CACHE_BLOCK_SIZE / zoom > imEnd) {
+                sy1 -= (y + CACHE_BLOCK_SIZE / zoom - imEnd) * zoom;
+            }
+
+            const sWidth = sx1 - sx0;
+            const sHeight = sy1 - sy0;
+
+            let dx = 0;
+            let dy = 0;
+
+            if (x > reStart) {
+                dx = (x - reStart) * currentZoom;
+            }
+
+            if (y > imStart) {
+                dy = (y - imStart) * currentZoom;
+            }
+
+            const dWidth = (sWidth / zoom) * currentZoom;
+            const dHeight = (sHeight / zoom) * currentZoom;
+
+            console.log('sx', sx0, 'sy', sy0);
+
+            canvasCtx.drawImage(
+                offscreenCanvas,
+                sx0,
+                sy0,
+                sWidth,
+                sHeight,
+                dx,
+                dy,
+                dWidth,
+                dHeight
+            );
+        }
+    };
+
+    const renderMandlebrot = () => {
+        const currentZoom = width / (reEnd - reStart);
+        const canvasCtx = canvasRef.current.getContext('2d');
+        canvasCtx.clearRect(0, 0, width, height);
+        const offscreenCanvas = document.createElement('canvas', {
+            height: CACHE_BLOCK_SIZE,
+            width: CACHE_BLOCK_SIZE,
+        });
+        const offscreenCanvasCtx = offscreenCanvas.getContext('2d');
+        MandlebrotCache.getCacheMap().forEach((block) =>
+            renderBlock(
+                block,
+                canvasCtx,
+                currentZoom,
+                offscreenCanvas,
+                offscreenCanvasCtx
+            )
+        );
     };
 
     useEffect(renderMandlebrot, [
@@ -61,6 +146,15 @@ const Mandlebrot = ({ width, height }) => {
         imStart,
         imEnd,
     ]);
+
+    useEffect(() => {
+        MandlebrotCache.addBlock(
+            -3,
+            -1.5,
+            64,
+            calcMandlebrotBlock(-3, -1.5, 64, 1000)
+        );
+    }, []);
 
     return (
         <canvas
