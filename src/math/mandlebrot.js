@@ -19,7 +19,7 @@ const calcMandlebrotBlock = (x, y, zoom, maxIter) => {
 
     for (let i = 0; i < CACHE_BLOCK_SIZE; i += 1) {
         for (let j = 0; j < CACHE_BLOCK_SIZE; j += 1) {
-            block[i * CACHE_BLOCK_SIZE + j] = calcMandlebrot(
+            block[i + CACHE_BLOCK_SIZE * j] = calcMandlebrot(
                 x + i / zoom,
                 y + j / zoom,
                 maxIter
