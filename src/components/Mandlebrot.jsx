@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import MandlebrotCache from '../mandlebrot/MandlebrotCache.js';
-import { CACHE_BLOCK_SIZE } from '../constants.js';
-import { calcMandlebrotBlock } from '../math/mandlebrot.js';
+import { CACHE_BLOCK_SIZE, MIN_ZOOM } from '../mandlebrot/constants.js';
+import { calcMandlebrotBlock } from '../mandlebrot/math.js';
+import { mapBlockToCanvas } from '../mandlebrot/pallet.js';
 
 const Mandlebrot = ({ width, height }) => {
     const canvasRef = useRef(null);
@@ -24,10 +25,12 @@ const Mandlebrot = ({ width, height }) => {
         const currentWidth = reEnd - reStart;
         const currentHeight = imEnd - imStart;
 
-        const zoomMultiplier = 1 + e.deltaY / 1000;
+        const currentZoom = width / currentWidth;
+        const zoomMultiplier = 1 - e.deltaY / 1000;
+        const newZoom = Math.max(currentZoom * zoomMultiplier, MIN_ZOOM);
 
-        const newWidth = currentWidth * zoomMultiplier;
-        const newHeight = currentHeight * zoomMultiplier;
+        const newWidth = width / newZoom;
+        const newHeight = height / newZoom;
 
         setReStart(reStart + currentWidth * dx - newWidth * dx);
         setReEnd(reStart + currentWidth * dx - newWidth * dx + newWidth);
@@ -36,11 +39,9 @@ const Mandlebrot = ({ width, height }) => {
     };
 
     const renderBlock = (
-        { x, y, zoom, data },
+        { x, y, zoom, blockCanvas },
         canvasCtx,
-        currentZoom,
-        offscreenCanvas,
-        offscreenCanvasCtx
+        currentZoom
     ) => {
         if (
             x < reEnd &&
@@ -48,22 +49,6 @@ const Mandlebrot = ({ width, height }) => {
             x + CACHE_BLOCK_SIZE / zoom > reStart &&
             y + CACHE_BLOCK_SIZE / zoom > imStart
         ) {
-            const imageData = offscreenCanvasCtx.getImageData(
-                0,
-                0,
-                CACHE_BLOCK_SIZE,
-                CACHE_BLOCK_SIZE
-            );
-
-            for (let i = 0; i < CACHE_BLOCK_SIZE * CACHE_BLOCK_SIZE; i += 1) {
-                imageData.data[i * 4] = (data[i] % 32) * 7;
-                imageData.data[i * 4 + 1] = (data[i] % 32) * 7;
-                imageData.data[i * 4 + 2] = (data[i] % 32) * 7;
-                imageData.data[i * 4 + 3] = 255;
-            }
-
-            offscreenCanvasCtx.putImageData(imageData, 0, 0);
-
             let sx0 = 0;
             let sy0 = 0;
 
@@ -104,7 +89,7 @@ const Mandlebrot = ({ width, height }) => {
             const dHeight = (sHeight / zoom) * currentZoom;
 
             canvasCtx.drawImage(
-                offscreenCanvas,
+                blockCanvas,
                 sx0,
                 sy0,
                 sWidth,
@@ -128,25 +113,57 @@ const Mandlebrot = ({ width, height }) => {
         canvasCtx.msImageSmoothingEnabled = false;
 
         canvasCtx.clearRect(0, 0, width, height);
-        const offscreenCanvas = document.createElement('canvas', {
-            height: CACHE_BLOCK_SIZE,
-            width: CACHE_BLOCK_SIZE,
-        });
-        const offscreenCanvasCtx = offscreenCanvas.getContext('2d');
-        const t0 = new Date().getTime();
 
-        MandlebrotCache.getCacheMap().forEach((block) =>
-            renderBlock(
-                block,
-                canvasCtx,
-                currentZoom,
-                offscreenCanvas,
-                offscreenCanvasCtx
-            )
+        const sortedBlocks = [...MandlebrotCache.getCacheMap()]
+            .map((e) => e[1])
+            .slice()
+            .sort((a, b) => a.zoom - b.zoom);
+
+        sortedBlocks.forEach((block) =>
+            renderBlock(block, canvasCtx, currentZoom)
         );
-        const t1 = new Date().getTime();
-        console.log(t1 - t0);
     };
+
+    useEffect(() => {
+        const currentZoom = width / (reEnd - reStart);
+        const closestZoom = 2 ** Math.ceil(Math.log2(currentZoom));
+        const cacheBlockWidth = CACHE_BLOCK_SIZE / closestZoom;
+
+        const minReBlockIndex = Math.floor(reStart / cacheBlockWidth);
+        const maxReBlockIndex = Math.ceil(reEnd / cacheBlockWidth);
+
+        const minImBlockIndex = Math.floor(imStart / cacheBlockWidth);
+        const maxImBlockIndex = Math.ceil(imEnd / cacheBlockWidth);
+
+        for (let i = minReBlockIndex; i <= maxReBlockIndex; i += 1) {
+            for (let j = minImBlockIndex; j <= maxImBlockIndex; j += 1) {
+                const x0 = i * cacheBlockWidth;
+                const y0 = j * cacheBlockWidth;
+                const x1 = x0 + cacheBlockWidth;
+                const y1 = y0 + cacheBlockWidth;
+
+                if (
+                    x0 < reEnd &&
+                    y0 < imEnd &&
+                    x1 > reStart &&
+                    y1 > imStart &&
+                    !MandlebrotCache.hasBlock(x0, y0, closestZoom)
+                ) {
+                    const block = calcMandlebrotBlock(x0, y0, closestZoom, 10);
+
+                    const blockCanvas = mapBlockToCanvas(block);
+
+                    MandlebrotCache.addBlock(
+                        x0,
+                        y0,
+                        closestZoom,
+                        block,
+                        blockCanvas
+                    );
+                }
+            }
+        }
+    }, [reStart, reEnd, imStart, imEnd]);
 
     useEffect(renderMandlebrot, [
         renderMandlebrot,
@@ -155,31 +172,6 @@ const Mandlebrot = ({ width, height }) => {
         imStart,
         imEnd,
     ]);
-
-    useEffect(() => {
-        MandlebrotCache.addBlock(
-            -3,
-            -1.5,
-            64,
-            calcMandlebrotBlock(-3, -1.5, 64, 1000)
-        );
-
-        for (let i = 0; i < 100; i += 1) {
-            MandlebrotCache.addBlock(
-                -3 + i / 10000,
-                -1.5,
-                64,
-                calcMandlebrotBlock(-3, -1.5, 64, 1000)
-            );
-        }
-
-        MandlebrotCache.addBlock(
-            -1,
-            -1.5,
-            64,
-            calcMandlebrotBlock(-1, -1.5, 64, 1000)
-        );
-    }, []);
 
     return (
         <canvas

@@ -1,4 +1,4 @@
-import { DEFAULT_MAX_CACHE_SIZE } from '../constants.js';
+import { DEFAULT_MAX_CACHE_SIZE } from './constants.js';
 
 class MandlebrotCache {
     constructor() {
@@ -10,8 +10,8 @@ class MandlebrotCache {
         return this.cache.has(`${x} ${y} ${zoom}`);
     }
 
-    addBlock(x, y, zoom, data) {
-        this.cache.set(`${x} ${y} ${zoom}`, { x, y, zoom, data });
+    addBlock(x, y, zoom, block, blockCanvas) {
+        this.cache.set(`${x} ${y} ${zoom}`, { x, y, zoom, block, blockCanvas });
     }
 
     setMaxCacheSize(maxCacheSize) {

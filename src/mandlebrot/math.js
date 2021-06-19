@@ -1,4 +1,4 @@
-import { CACHE_BLOCK_SIZE } from '../constants.js';
+import { CACHE_BLOCK_SIZE } from './constants.js';
 
 const calcMandlebrot = (x0, y0, maxIter) => {
     let x = 0;
