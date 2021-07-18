@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import MandlebrotCache from '../mandlebrot/MandlebrotCache.js';
 import { CACHE_BLOCK_SIZE, MIN_ZOOM } from '../mandlebrot/constants.js';
-import { calcMandlebrotBlock } from '../mandlebrot/math.js';
-import { mapBlockToCanvas } from '../mandlebrot/pallet.js';
+import { calcMandlebrotBlockSmooth } from '../mandlebrot/math.js';
+import { mapBlockToCanvas, standardPallet } from '../mandlebrot/pallet.js';
 
 const Mandlebrot = ({ width, height }) => {
     const canvasRef = useRef(null);
@@ -13,7 +13,7 @@ const Mandlebrot = ({ width, height }) => {
     const [imStart, setImStart] = useState(-1.5);
     const [imEnd, setImEnd] = useState(1.5);
 
-    const handleScroll = (e) => {
+    const handleScroll = e => {
         const canvasRect = canvasRef.current.getBoundingClientRect();
 
         const canvasX = e.pageX - canvasRect.left;
@@ -41,6 +41,8 @@ const Mandlebrot = ({ width, height }) => {
     const renderBlock = (
         { x, y, zoom, blockCanvas },
         canvasCtx,
+        blurCanvas,
+        blurContext,
         currentZoom
     ) => {
         if (
@@ -88,8 +90,16 @@ const Mandlebrot = ({ width, height }) => {
             const dWidth = (sWidth / zoom) * currentZoom;
             const dHeight = (sHeight / zoom) * currentZoom;
 
+            // const steps = Math.floor(Math.floor(zoom / currentZoom) / 4);
+            const steps = 3;
+
+            // eslint-disable-next-line
+            blurContext.filter = `blur(${steps}px)`;
+            blurContext.clearRect(0, 0, CACHE_BLOCK_SIZE, CACHE_BLOCK_SIZE);
+            blurContext.drawImage(blockCanvas, 0, 0);
+
             canvasCtx.drawImage(
-                blockCanvas,
+                blurCanvas,
                 sx0,
                 sy0,
                 sWidth,
@@ -114,19 +124,37 @@ const Mandlebrot = ({ width, height }) => {
 
         canvasCtx.clearRect(0, 0, width, height);
 
+        const blurCanvas = document.createElement('canvas');
+
+        blurCanvas.height = CACHE_BLOCK_SIZE;
+        blurCanvas.width = CACHE_BLOCK_SIZE;
+
+        const blurContext = blurCanvas.getContext('2d');
+
         const sortedBlocks = [...MandlebrotCache.getCacheMap()]
-            .map((e) => e[1])
+            .map(e => e[1])
             .slice()
             .sort((a, b) => a.zoom - b.zoom);
 
-        sortedBlocks.forEach((block) =>
-            renderBlock(block, canvasCtx, currentZoom)
-        );
+        console.log(sortedBlocks);
+
+        sortedBlocks.forEach(block => {
+            if (block.x === -1 && block.y === 0) {
+                console.log(block);
+                renderBlock(
+                    block,
+                    canvasCtx,
+                    blurCanvas,
+                    blurContext,
+                    currentZoom
+                );
+            }
+        });
     };
 
     useEffect(() => {
         const currentZoom = width / (reEnd - reStart);
-        const closestZoom = 2 ** Math.ceil(Math.log2(currentZoom));
+        const closestZoom = 2 ** (1 + Math.ceil(Math.log2(currentZoom)));
         const cacheBlockWidth = CACHE_BLOCK_SIZE / closestZoom;
 
         const minReBlockIndex = Math.floor(reStart / cacheBlockWidth);
@@ -149,9 +177,13 @@ const Mandlebrot = ({ width, height }) => {
                     y1 > imStart &&
                     !MandlebrotCache.hasBlock(x0, y0, closestZoom)
                 ) {
-                    const block = calcMandlebrotBlock(x0, y0, closestZoom, 10);
-
-                    const blockCanvas = mapBlockToCanvas(block);
+                    const block = calcMandlebrotBlockSmooth(
+                        x0,
+                        y0,
+                        closestZoom,
+                        500
+                    );
+                    const blockCanvas = mapBlockToCanvas(block, standardPallet);
 
                     MandlebrotCache.addBlock(
                         x0,

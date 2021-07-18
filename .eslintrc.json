@@ -12,7 +12,9 @@
         "react/jsx-indent-props": ["error", 4],
         "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
         "arrow-body-style": 0,
-        "import/extensions": "off"
+        "import/extensions": "off",
+        "arrow-parens": ["error", "as-needed"],
+        "import/prefer-default-export": "off"
     },
     "env": {
         "browser": true
