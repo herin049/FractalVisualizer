@@ -3,7 +3,7 @@
     "plugins": ["prettier"],
     "rules": {
         // Indent with 4 spaces
-        "indent": ["error", 4],
+        "indent": ["error", 4, { "SwitchCase": 1 }],
 
         // Indent JSX with 4 spaces
         "react/jsx-indent": ["error", 4],
@@ -14,7 +14,9 @@
         "arrow-body-style": 0,
         "import/extensions": "off",
         "arrow-parens": ["error", "as-needed"],
-        "import/prefer-default-export": "off"
+        "import/prefer-default-export": "off",
+        "no-param-reassign": "off",
+        "no-console": "off"
     },
     "env": {
         "browser": true

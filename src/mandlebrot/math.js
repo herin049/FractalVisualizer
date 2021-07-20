@@ -1,8 +1,6 @@
 import { CACHE_BLOCK_SIZE } from './constants.js';
 
-const calcMandlebrotBlock = (blockX, blockY, blockZoom, maxIter) => {
-    const block = new Float32Array(CACHE_BLOCK_SIZE * CACHE_BLOCK_SIZE);
-
+const calcMandlebrotBlock = (blockData, blockX, blockY, blockZoom, maxIter) => {
     for (let i = 0; i < CACHE_BLOCK_SIZE; i += 1) {
         for (let j = 0; j < CACHE_BLOCK_SIZE; j += 1) {
             const x0 = blockX + i / blockZoom;
@@ -23,16 +21,12 @@ const calcMandlebrotBlock = (blockX, blockY, blockZoom, maxIter) => {
                 iter = 0;
             }
 
-            block[i + CACHE_BLOCK_SIZE * j] = iter;
+            blockData[i + CACHE_BLOCK_SIZE * j] = iter;
         }
     }
-
-    return block;
 };
 
-const calcMandlebrotBlockSmooth = (blockX, blockY, blockZoom, maxIter) => {
-    const block = new Float32Array(CACHE_BLOCK_SIZE * CACHE_BLOCK_SIZE);
-
+const calcMandlebrotBlockSmooth = (blockData, blockX, blockY, blockZoom, maxIter) => {
     for (let i = 0; i < CACHE_BLOCK_SIZE; i += 1) {
         for (let j = 0; j < CACHE_BLOCK_SIZE; j += 1) {
             const x0 = blockX + i / blockZoom;
@@ -60,11 +54,9 @@ const calcMandlebrotBlockSmooth = (blockX, blockY, blockZoom, maxIter) => {
                 iter = 0;
             }
 
-            block[i + CACHE_BLOCK_SIZE * j] = iter;
+            blockData[i + CACHE_BLOCK_SIZE * j] = iter;
         }
     }
-
-    return block;
 };
 
 export { calcMandlebrotBlock, calcMandlebrotBlockSmooth };
