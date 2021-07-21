@@ -1,6 +1,7 @@
 {
     "extends": ["eslint:recommended", "airbnb", "prettier"],
     "plugins": ["prettier"],
+    "parser": "babel-eslint",
     "rules": {
         // Indent with 4 spaces
         "indent": ["error", 4, { "SwitchCase": 1 }],
@@ -16,7 +17,8 @@
         "arrow-parens": ["error", "as-needed"],
         "import/prefer-default-export": "off",
         "no-param-reassign": "off",
-        "no-console": "off"
+        "no-console": "off",
+        "no-constant-condition": "off"
     },
     "env": {
         "browser": true
