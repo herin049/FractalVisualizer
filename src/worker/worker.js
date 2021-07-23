@@ -2,30 +2,42 @@ import {
     CALC_MANDLEBROT_BLOCK,
     CALC_MANDLEBROT_BLOCK_SMOOTH,
 } from './tasks.js';
-import { calcMandlebrotBlock, calcMandlebrotBlockSmooth } from '../mandlebrot/math.js';
+import {
+    calcMandlebrotBlock,
+    calcMandlebrotBlockSmooth,
+} from '../mandlebrot/math.js';
 
 // eslint-disable-next-line
 addEventListener('message', e => {
-    if (!Array.isArray(e.data) || e.data.length < 2) {
-        return;
-    }
-    const [task, taskId, ...args] = e.data;
-    switch (task) {
+    const { taskType, taskId, args } = e.data;
+    switch (taskType) {
         case CALC_MANDLEBROT_BLOCK: {
-            const [rawBlockData, blockX, blockY, blockZoom, maxIter] = args;
-            const blockData = new Float32Array(rawBlockData);
-            calcMandlebrotBlock(blockData, blockX, blockY, blockZoom, maxIter);
-            postMessage(taskId);
+            const { blockX, blockY, blockZoom, maxIter } = args;
+            const blockData = calcMandlebrotBlock(
+                blockX,
+                blockY,
+                blockZoom,
+                maxIter
+            );
+            postMessage({ taskId, rawBlockData: blockData.buffer }, [
+                blockData.buffer,
+            ]);
             break;
         }
         case CALC_MANDLEBROT_BLOCK_SMOOTH: {
-            const [rawBlockData, blockX, blockY, blockZoom, maxIter] = args;
-            const blockData = new Float32Array(rawBlockData);
-            calcMandlebrotBlockSmooth(blockData, blockX, blockY, blockZoom, maxIter);
-            postMessage(taskId);
+            const { blockX, blockY, blockZoom, maxIter } = args;
+            const blockData = calcMandlebrotBlockSmooth(
+                blockX,
+                blockY,
+                blockZoom,
+                maxIter
+            );
+            postMessage({ taskId, rawBlockData: blockData.buffer }, [
+                blockData.buffer,
+            ]);
             break;
         }
         default:
-            console.error(`[worker.js] Unknown task ${task}`);
+            console.error(`[worker.js] Unknown task ${taskType}`);
     }
 });

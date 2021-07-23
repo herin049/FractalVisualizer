@@ -2,6 +2,8 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
+    mode: 'development',
+    devtool: 'source-map',
     entry: {
         bundle: './src/index.js',
         worker: './src/worker/worker.js',

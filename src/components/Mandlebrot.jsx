@@ -1,12 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useReducer } from 'react';
 import PropTypes from 'prop-types';
 import MandlebrotCache from '../mandlebrot/MandlebrotCache.js';
 import { CACHE_BLOCK_SIZE, MIN_ZOOM } from '../mandlebrot/constants.js';
-// import { calcMandlebrotBlockSmooth } from '../mandlebrot/math.js';
-// import { mapBlockToCanvas, standardPallet } from '../mandlebrot/pallet.js';
+import { mapBlockToCanvas, standardPallet } from '../mandlebrot/pallet.js';
 import WorkerPool from '../worker/WorkerPool.js';
+import {
+    CALC_MANDLEBROT_BLOCK_SMOOTH,
+    CALC_MANDLEBROT_BLOCK,
+} from '../worker/tasks.js';
 
 const Mandlebrot = ({ width, height }) => {
+    const [, forceUpdate] = useReducer(x => (x + 1) % 2, 0);
     const canvasRef = useRef(null);
 
     const [reStart, setReStart] = useState(-3);
@@ -117,6 +121,8 @@ const Mandlebrot = ({ width, height }) => {
 
         const sortedBlocks = [...MandlebrotCache.getCacheMap()]
             .map(e => e[1])
+            .filter(e => !e.loading)
+            .filter(e => e.zoom <= 2 ** (1 + Math.ceil(Math.log2(currentZoom))))
             .slice()
             .sort((a, b) => a.zoom - b.zoom);
 
@@ -124,6 +130,10 @@ const Mandlebrot = ({ width, height }) => {
             renderBlock(block, canvasCtx, currentZoom)
         );
     };
+
+    useEffect(() => {
+        WorkerPool.resize(16);
+    }, []);
 
     useEffect(() => {
         const currentZoom = width / (reEnd - reStart);
@@ -150,26 +160,62 @@ const Mandlebrot = ({ width, height }) => {
                     y1 > imStart &&
                     !MandlebrotCache.hasBlock(x0, y0, closestZoom)
                 ) {
-                    /*
-                    const block = calcMandlebrotBlockSmooth(
-                        x0,
-                        y0,
-                        closestZoom,
-                        500
-                    );
-                    const blockCanvas = mapBlockToCanvas(block, standardPallet);
+                    WorkerPool.postTask(CALC_MANDLEBROT_BLOCK_SMOOTH, {
+                        blockX: x0,
+                        blockY: y0,
+                        blockZoom: closestZoom,
+                        maxIter: 2 ** 15,
+                    })
+                        .then(({ rawBlockData }) => {
+                            const blockData = new Float32Array(rawBlockData);
+                            const blockCanvas = mapBlockToCanvas(
+                                blockData,
+                                standardPallet
+                            );
+
+                            MandlebrotCache.addBlock(
+                                x0,
+                                y0,
+                                closestZoom,
+                                blockData,
+                                blockCanvas,
+                                false
+                            );
+                            forceUpdate();
+                        })
+                        .catch(() => {
+                            console.error('Failed to calculate block.');
+                        });
 
                     MandlebrotCache.addBlock(
                         x0,
                         y0,
                         closestZoom,
-                        block,
-                        blockCanvas
+                        null,
+                        null,
+                        true
                     );
-                    */
                 }
             }
         }
+
+        WorkerPool.filterTaskQueue(task => {
+            const { taskType, args } = task;
+            if (
+                taskType === CALC_MANDLEBROT_BLOCK_SMOOTH ||
+                taskType === CALC_MANDLEBROT_BLOCK
+            ) {
+                const { blockX, blockY, blockZoom } = args;
+                return (
+                    blockX < reEnd &&
+                    blockY < imEnd &&
+                    blockX + CACHE_BLOCK_SIZE / blockZoom > reStart &&
+                    blockY + CACHE_BLOCK_SIZE / blockZoom > imStart &&
+                    blockZoom >= closestZoom
+                );
+            }
+            return false;
+        });
     }, [reStart, reEnd, imStart, imEnd]);
 
     useEffect(renderMandlebrot, [
@@ -179,11 +225,6 @@ const Mandlebrot = ({ width, height }) => {
         imStart,
         imEnd,
     ]);
-
-    useEffect(() => {
-        WorkerPool.resize(1);
-        WorkerPool.test();
-    }, []);
 
     return (
         <canvas

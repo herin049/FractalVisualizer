@@ -34,31 +34,35 @@ const mapBlockToCanvas = (block, pallet) => {
 
 const lerp = (x, y, n) => {
     const { red: xr, green: xg, blue: xb } = x;
-    const { red : yr, green: yg, blue: yb } = y;
-    return (new Array(n)).fill(0).map((_, idx) => ({ red: xr + (yr - xr) * (idx / n), green: xg + (yg - xg) * (idx / n), blue: xb + (yb - xb) * (idx / n) }));
-}
+    const { red: yr, green: yg, blue: yb } = y;
+    return new Array(n).fill(0).map((_, idx) => ({
+        red: xr + (yr - xr) * (idx / n),
+        green: xg + (yg - xg) * (idx / n),
+        blue: xb + (yb - xb) * (idx / n),
+    }));
+};
 
 const hsvToRgb = (h, s, v) => {
     const hp = h / 60.0;
     const c = Math.min(v, 1) * s;
     const x = c * (1 - Math.abs((hp % 2) - 1));
-    let color = {red: 0, green: 0, blue: 0};
+    let color = { red: 0, green: 0, blue: 0 };
     if (hp >= 0 && hp < 1) {
-        color = {red: c, green: x, blue: 0};
+        color = { red: c, green: x, blue: 0 };
     } else if (hp >= 1 && hp < 2) {
-        color = {red: x, green: c, blue: 0};
+        color = { red: x, green: c, blue: 0 };
     } else if (hp >= 2 && hp < 3) {
-        color = {red: 0, green : c, blue: x};
+        color = { red: 0, green: c, blue: x };
     } else if (hp >= 3 && hp < 4) {
-        color = {red: x, green: 0, blue: c};
+        color = { red: x, green: 0, blue: c };
     } else if (hp >= 4 && hp < 5) {
-        color = {red: x, green: 0, blue: c};
+        color = { red: x, green: 0, blue: c };
     } else if (hp >= 5 && hp < 6) {
-        color = {red: c, green: 0, blue: x};
+        color = { red: c, green: 0, blue: x };
     }
 
     const m = Math.min(v, 1) - c;
-    
+
     color.red += m;
     color.green += m;
     color.blue += m;
@@ -66,15 +70,15 @@ const hsvToRgb = (h, s, v) => {
     color.red *= 255;
     color.green *= 255;
     color.blue *= 255;
-    
+
     return color;
-}
+};
 
 const standardPallet = (() => {
     const pallet = [];
     pallet.push({ red: 0, green: 0, blue: 0 });
-    for (let n = 0; n < 5000; n += 1) {
-        pallet.push(hsvToRgb(360.0 * n / 500, 1.0, 10 * n / 500));
+    for (let n = 0; n < 2 ** 16; n += 1) {
+        pallet.push(hsvToRgb((360.0 * n) / 500, 1.0, (10 * n) / 500));
     }
     return pallet;
 })();
