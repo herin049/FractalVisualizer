@@ -1,3 +1,4 @@
 node_modules/
 .vscode/
-packet-lock.json
+dist/
+package-lock.json

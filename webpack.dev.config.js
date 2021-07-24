@@ -1,14 +1,16 @@
 const path = require('path');
+// eslint-disable-next-line
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
+    mode: 'development',
+    devtool: 'source-map',
     entry: {
         bundle: './src/index.js',
         worker: './src/worker/worker.js',
     },
     output: {
-        path: path.join(__dirname, '/dist/'),
+        path: path.join(__dirname, '/dist'),
         filename: '[name].js',
     },
     module: {
@@ -24,7 +26,8 @@ module.exports = {
                 test: /\.scss$/,
                 exclude: /node_modules/,
                 use: [
-                    MiniCssExtractPlugin.loader,
+                    { loader: 'css-hot-loader' },
+                    { loader: 'style-loader' },
                     { loader: 'css-loader' },
                     { loader: 'sass-loader' },
                 ],
@@ -34,10 +37,6 @@ module.exports = {
     plugins: [
         new HtmlWebpackPlugin({
             template: './src/index.html',
-        }),
-        new MiniCssExtractPlugin({
-            filename: 'styles.css',
-            chunkFilename: '[name].css',
         }),
     ],
     resolve: {
