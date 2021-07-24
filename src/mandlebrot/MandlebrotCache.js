@@ -10,8 +10,19 @@ class MandlebrotCache {
         return this.cache.has(`${x} ${y} ${zoom}`);
     }
 
+    removeBlock(x, y, zoom) {
+        return this.cache.delete(`${x} ${y} ${zoom}`);
+    }
+
     addBlock(x, y, zoom, blockData, blockCanvas, loading) {
-        this.cache.set(`${x} ${y} ${zoom}`, { x, y, zoom, blockData, blockCanvas, loading });
+        this.cache.set(`${x} ${y} ${zoom}`, {
+            x,
+            y,
+            zoom,
+            blockData,
+            blockCanvas,
+            loading,
+        });
     }
 
     setMaxCacheSize(maxCacheSize) {

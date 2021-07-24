@@ -1,4 +1,4 @@
-import { CACHE_BLOCK_SIZE } from './constants.js';
+import { CACHE_BLOCK_SIZE } from '../mandlebrot/constants.js';
 
 const mapBlockToCanvas = (block, pallet) => {
     const canvas = document.createElement('canvas');
@@ -32,6 +32,7 @@ const mapBlockToCanvas = (block, pallet) => {
     return canvas;
 };
 
+// eslint-disable-next-line
 const lerp = (x, y, n) => {
     const { red: xr, green: xg, blue: xb } = x;
     const { red: yr, green: yg, blue: yb } = y;
@@ -42,6 +43,7 @@ const lerp = (x, y, n) => {
     }));
 };
 
+// eslint-disable-next-line
 const hsvToRgb = (h, s, v) => {
     const hp = h / 60.0;
     const c = Math.min(v, 1) * s;
@@ -81,6 +83,20 @@ const standardPallet = (() => {
         pallet.push(hsvToRgb((360.0 * n) / 500, 1.0, (10 * n) / 500));
     }
     return pallet;
+
+    /*
+    const pallet = [];
+    pallet.push({ red: 0, green: 0, blue: 0 });
+    for (let n = 0; n < 3000; n += 1) {
+        const t = (n % 800) / 800;
+        const red = Math.floor(9 * (1 - t) * t * t * t * 255);
+        const green = Math.floor(15 * (1 - t) * (1 - t) * t * t * 255);
+        const blue = Math.floor(8.5 * (1 - t) * (1 - t) * (1 - t) * t * 255);
+
+        pallet.push({ red, green, blue });
+    }
+    return pallet;
+    */
 })();
 
 export { mapBlockToCanvas, standardPallet };
