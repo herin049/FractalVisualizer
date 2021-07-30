@@ -42,7 +42,7 @@ const calcMandlebrotBlockSmooth = (blockX, blockY, blockZoom, maxIter) => {
             let y = 0;
             let iter = 0;
 
-            while (x * x + y * y <= 2 ** 16 && iter < maxIter) {
+            while (x * x + y * y <= 2 ** 64 && iter < maxIter) {
                 const t = x * x - y * y + x0;
                 y = 2 * x * y + y0;
                 x = t;

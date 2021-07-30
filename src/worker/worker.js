@@ -9,7 +9,9 @@ import {
 
 // eslint-disable-next-line
 addEventListener('message', e => {
-    const { taskType, taskId, args } = e.data;
+    if (typeof e?.data?.taskType !== 'string') return;
+    const { taskType, taskId, workerId, args } = e.data;
+
     switch (taskType) {
         case CALC_MANDLEBROT_BLOCK: {
             const { blockX, blockY, blockZoom, maxIter } = args;
@@ -22,6 +24,9 @@ addEventListener('message', e => {
             postMessage({ taskId, rawBlockData: blockData.buffer }, [
                 blockData.buffer,
             ]);
+            console.log(
+                `[worker.js] Worker ${workerId} completed calculation.`
+            );
             break;
         }
         case CALC_MANDLEBROT_BLOCK_SMOOTH: {
@@ -35,6 +40,9 @@ addEventListener('message', e => {
             postMessage({ taskId, rawBlockData: blockData.buffer }, [
                 blockData.buffer,
             ]);
+            console.log(
+                `[worker.js] Worker ${workerId} completed calculation.`
+            );
             break;
         }
         default:

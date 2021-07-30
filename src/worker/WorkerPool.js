@@ -9,7 +9,6 @@ class WorkerPool {
         const numCurrentWorkers = this.workers.length;
         if (numWorkers > numCurrentWorkers) {
             for (let i = 0; i < numWorkers - numCurrentWorkers; i += 1) {
-                console.log('launch workers');
                 const worker = new Worker('worker.js');
                 const workerIndex = numCurrentWorkers + i;
                 worker.onmessage = e => {
@@ -47,6 +46,7 @@ class WorkerPool {
                 this.workers[i].postMessage({
                     taskType,
                     taskId,
+                    workerId: i,
                     args,
                 });
             }

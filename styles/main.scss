@@ -4,4 +4,13 @@ body {
 
 canvas {
     display: block;
+    &:active {
+        cursor: move;
+    }
+}
+
+#settings-overlay {
+    position: absolute;
+    top: 10px;
+    left: 10px;
 }

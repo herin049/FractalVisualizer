@@ -12,6 +12,7 @@ module.exports = {
     output: {
         path: path.join(__dirname, '/dist'),
         filename: '[name].js',
+        publicPath: '/',
     },
     module: {
         rules: [
@@ -23,15 +24,18 @@ module.exports = {
                 },
             },
             {
+                test: /\.(png|jpg|jpeg|gif)$/,
+                use: [{ loader: 'url?limit=10000&name=images/[name].[ext]' }],
+            },
+            {
                 test: /\.scss$/,
-                exclude: /node_modules/,
                 use: [
                     { loader: 'css-hot-loader' },
                     { loader: 'style-loader' },
                     { loader: 'css-loader' },
                     { loader: 'sass-loader' },
                 ],
-            },
+            }
         ],
     },
     plugins: [
