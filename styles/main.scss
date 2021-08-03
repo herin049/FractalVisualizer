@@ -1,3 +1,9 @@
+$container-color: #fff;
+$side-button-color: #ededed;
+$icon-font-size: 20px;
+$icon-color: #474754;
+$icon-hover-color: #000000;
+
 body {
     margin: 0;
 }
@@ -9,8 +15,118 @@ canvas {
     }
 }
 
-#settings-overlay {
+.side-button-container {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: 15px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
+
+.side-button {
+    display: block;
+    padding: 6px;
+    background-color: $side-button-color;
+    border-radius: 4px;
+    border: 1px solid rgba(128, 128, 128, 0.5);
+    box-shadow: 1px 4px 10px rgba(64, 64, 64, 0.1);
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+
+    &:hover {
+        cursor: pointer;
+    }
+}
+
+.side-button > i {
+    display: block;
+    font-size: $icon-font-size;
+    color: $icon-color;
+    transition: color 0.1s ease-in-out;
+}
+
+.side-button > .fa-github {
+    font-size: 22px;
+}
+
+.side-button:hover > i {
+    color: $icon-hover-color;
+}
+
+.zoom-container {
+    padding: 0;
+    display: block;
+    background-color: $side-button-color;
+    border-radius: 4px;
+    border: 1px solid rgba(128, 128, 128, 0.5);
+    box-shadow: 1px 4px 10px rgba(64, 64, 64, 0.1);
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+#zoom-in-button {
+    width: 100%;
+    display: block;
+    border-radius: 4px 4px 0 0;
+    border: none;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.5);
+    padding: 8px;
+
+    &:hover {
+        cursor: pointer;
+    }
+}
+
+#zoom-in-button > i {
+    display: block;
+    font-size: 16px;
+    color: $icon-color;
+    transition: color 0.1s ease-in-out;
+}
+
+#zoom-in-button:hover > i {
+    color: $icon-hover-color;
+}
+
+#zoom-out-button {
+    width: 100%;
+    display: block;
+    border-radius: 0 0 4px 4px;
+    border: none;
+    padding: 8px;
+
+    &:hover {
+        cursor: pointer;
+    }
+}
+
+#zoom-out-button > i {
+    display: block;
+    font-size: 16px;
+    color: $icon-color;
+    transition: color 0.1s ease-in-out;
+}
+
+#zoom-out-button:hover {
+    color: $icon-hover-color;
+}
+
+#zoom-out-button:hover > i {
+    color: $icon-hover-color;
+}
+
+.menu {
+    display: flex;
+    width: 100px;
+    height: 500px;
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    flex-direction: column;
+    background-color: $container-color;
+    border-radius: 10px;
+    box-shadow: 1px 4px 10px rgba(64, 64, 64, 15%);
 }
