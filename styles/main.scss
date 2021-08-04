@@ -1,6 +1,6 @@
 $container-color: #fff;
 $side-button-color: #ededed;
-$icon-font-size: 20px;
+$icon-font-size: 26px;
 $icon-color: #474754;
 $icon-hover-color: #000000;
 
@@ -26,7 +26,9 @@ canvas {
 
 .side-button {
     display: block;
-    padding: 6px;
+    position: relative;
+    padding-top: 6px;
+    padding-bottom: 6px;
     background-color: $side-button-color;
     border-radius: 4px;
     border: 1px solid rgba(128, 128, 128, 0.5);
@@ -34,24 +36,22 @@ canvas {
     text-align: center;
     margin-top: 5px;
     margin-bottom: 5px;
+    text-decoration: none;
 
     &:hover {
         cursor: pointer;
     }
 }
 
-.side-button > i {
+.side-button > span {
     display: block;
     font-size: $icon-font-size;
+    font-weight: bold;
     color: $icon-color;
     transition: color 0.1s ease-in-out;
 }
 
-.side-button > .fa-github {
-    font-size: 22px;
-}
-
-.side-button:hover > i {
+.side-button:hover > span {
     color: $icon-hover-color;
 }
 
@@ -70,42 +70,46 @@ canvas {
 #zoom-in-button {
     width: 100%;
     display: block;
+    position: relative;
     border-radius: 4px 4px 0 0;
     border: none;
     border-bottom: 1px solid rgba(128, 128, 128, 0.5);
-    padding: 8px;
+    padding-top: 4px;
+    padding-bottom: 4px;
 
     &:hover {
         cursor: pointer;
     }
 }
 
-#zoom-in-button > i {
+#zoom-in-button > span {
     display: block;
-    font-size: 16px;
+    font-size: $icon-font-size;
     color: $icon-color;
     transition: color 0.1s ease-in-out;
 }
 
-#zoom-in-button:hover > i {
+#zoom-in-button:hover > span {
     color: $icon-hover-color;
 }
 
 #zoom-out-button {
     width: 100%;
     display: block;
+    position: relative;
     border-radius: 0 0 4px 4px;
     border: none;
-    padding: 8px;
+    padding-top: 4px;
+    padding-bottom: 4px;
 
     &:hover {
         cursor: pointer;
     }
 }
 
-#zoom-out-button > i {
+#zoom-out-button > span {
     display: block;
-    font-size: 16px;
+    font-size: $icon-font-size;
     color: $icon-color;
     transition: color 0.1s ease-in-out;
 }
@@ -114,7 +118,7 @@ canvas {
     color: $icon-hover-color;
 }
 
-#zoom-out-button:hover > i {
+#zoom-out-button:hover > span {
     color: $icon-hover-color;
 }
 
@@ -129,4 +133,32 @@ canvas {
     background-color: $container-color;
     border-radius: 10px;
     box-shadow: 1px 4px 10px rgba(64, 64, 64, 15%);
+}
+
+.info-tooltip {
+    visibility: hidden;
+    position: absolute;
+    top: 50%;
+    left: 50px;
+    padding: 7px 14px 7px 14px;
+    color: white;
+    background-color: #424242d4;
+    cursor: default;
+    border-radius: 4px;
+    border: none;
+    white-space: nowrap;
+    box-shadow: 1px 4px 10px rgba(64, 64, 64, 0.1);
+    transform: translateY(-50%);
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 15px;
+    opacity: 0;
+    transition: visibility 0s linear 0s, opacity 300ms;
+}
+
+.side-button:hover .info-tooltip,
+#zoom-in-button:hover .info-tooltip,
+#zoom-out-button:hover .info-tooltip {
+    visibility: visible;
+    opacity: 1;
+    transition: visibility 0s linear 0s, opacity 300ms;
 }
