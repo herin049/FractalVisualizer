@@ -28,7 +28,7 @@ const Sidebuttons = () => {
                         <div className="info-tooltip">Zoom out</div>
                     </button>
                 </div>
-                <button className="side-button" type="button">
+                <button id="reset-button" className="side-button" type="button">
                     <span className="material-icons">restart_alt</span>
                     <div className="info-tooltip">Reset orientation</div>
                 </button>

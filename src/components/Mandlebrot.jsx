@@ -16,7 +16,11 @@ const Mandlebrot = () => {
     const forceUpdate = useForceUpdate();
     const canvasRef = useRef(null);
 
-    const { zoom: canvasZoom, coords: canvasCoords } = usePanZoom(
+    const {
+        zoom: canvasZoom,
+        coords: canvasCoords,
+        resetOrientation,
+    } = usePanZoom(
         canvasRef,
         Constants.DEFAULT_ZOOM,
         {
@@ -25,8 +29,17 @@ const Mandlebrot = () => {
         },
         Constants.MIN_ZOOM,
         Constants.MAX_ZOOM,
-        Constants.ZOOM_FACTOR
+        Constants.ZOOM_FACTOR,
+        Constants.CLICK_ZOOM_FACTOR
     );
+
+    useEffect(() => {
+        const onReset = resetOrientation;
+        const resetButton = document.getElementById('reset-button');
+
+        resetButton.addEventListener('click', onReset);
+        return () => resetButton.removeEventListener('click', onReset);
+    }, [resetOrientation]);
 
     const reStart = canvasCoords.x;
     const reEnd = canvasCoords.x + width / canvasZoom;

@@ -6,10 +6,12 @@ $icon-hover-color: #000000;
 
 body {
     margin: 0;
+    -webkit-tap-highlight-color: transparent;
 }
 
 canvas {
     display: block;
+    touch-action: none;
     &:active {
         cursor: move;
     }

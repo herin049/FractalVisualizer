@@ -6,7 +6,8 @@ const usePanZoom = (
     initialCoords,
     minZoom,
     maxZoom,
-    zoomFactor
+    zoomFactor,
+    clickZoomFactor
 ) => {
     const [state, setState] = useState({
         zoom: initialZoom,
@@ -17,26 +18,18 @@ const usePanZoom = (
     const coordsRef = useRef(initialCoords);
     const panCoordsRef = useRef(null);
 
-    const onZoom = useCallback(e => {
+    const updateZoom = useCallback((newZoom, dx, dy) => {
         const canvas = canvasRef.current;
-        const canvasRect = canvas.getBoundingClientRect();
 
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
-
-        const dx = (e.pageX - canvasRect.left) / canvasWidth;
-        const dy = (e.pageY - canvasRect.top) / canvasHeight;
 
         const currentZoom = zoomRef.current;
 
         const currentWidth = canvasWidth / currentZoom;
         const currentHeight = canvasHeight / currentZoom;
 
-        const zoomMultiplier = 1 - e.deltaY / zoomFactor;
-        const newZoom = Math.min(
-            Math.max(currentZoom * zoomMultiplier, minZoom),
-            maxZoom
-        );
+        newZoom = Math.min(Math.max(newZoom, minZoom), maxZoom);
 
         const newWidth = canvasWidth / newZoom;
         const newHeight = canvasHeight / newZoom;
@@ -51,9 +44,32 @@ const usePanZoom = (
         coordsRef.current = newCoords;
 
         setState({ zoom: newZoom, coords: newCoords });
+    });
+
+    const onClickZoom = useCallback(zoomIn => {
+        const newZoom = zoomIn
+            ? zoomRef.current * (1 + clickZoomFactor)
+            : zoomRef.current * (1 - clickZoomFactor);
+
+        updateZoom(newZoom, 0.5, 0.5);
+    });
+
+    const onZoom = useCallback(e => {
+        const canvas = canvasRef.current;
+        const canvasRect = canvas.getBoundingClientRect();
+
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+
+        const dx = (e.pageX - canvasRect.left) / canvasWidth;
+        const dy = (e.pageY - canvasRect.top) / canvasHeight;
+
+        const zoomMultiplier = 1 - e.deltaY / zoomFactor;
+        const newZoom = zoomRef.current * zoomMultiplier;
+
+        updateZoom(newZoom, dx, dy);
     }, []);
 
-    // x0 + px / zoom = xi
     const onPan = useCallback(e => {
         const canvas = canvasRef.current;
         const canvasRect = canvas.getBoundingClientRect();
@@ -76,8 +92,8 @@ const usePanZoom = (
 
     const disablePan = useCallback(() => {
         panCoordsRef.current = null;
-        document.removeEventListener('mousemove', onPan);
-        document.removeEventListener('mouseup', disablePan);
+        document.removeEventListener('pointermove', onPan);
+        document.removeEventListener('pointerup', disablePan);
     });
 
     const onMouseDown = useCallback(e => {
@@ -95,21 +111,47 @@ const usePanZoom = (
             y: currentCords.y + py / currentZoom,
         };
 
-        document.addEventListener('mousemove', onPan);
-        document.addEventListener('mouseup', disablePan);
+        document.addEventListener('pointermove', onPan);
+        document.addEventListener('pointerup', disablePan);
     }, []);
+
+    const resetOrientation = useCallback(() => {
+        zoomRef.current = initialZoom;
+        coordsRef.current = initialCoords;
+        panCoordsRef.current = initialCoords;
+
+        setState({
+            zoom: initialZoom,
+            coords: initialCoords,
+        });
+    }, [initialZoom, initialCoords]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
         canvas.addEventListener('wheel', onZoom);
-        canvas.addEventListener('mousedown', onMouseDown);
+
+        canvas.addEventListener('pointerdown', onMouseDown);
+
+        const zoomInButton = document.getElementById('zoom-in-button');
+        const zoomOutButton = document.getElementById('zoom-out-button');
+
+        const onClickZoomIn = () => onClickZoom(true);
+        const onClickZoomOut = () => onClickZoom(false);
+
+        zoomInButton.addEventListener('click', onClickZoomIn);
+        zoomOutButton.addEventListener('click', onClickZoomOut);
+
         return () => {
             canvas.removeEventListener('wheel', onZoom);
-            canvas.removeEventListener('mousedown', onMouseDown);
+
+            canvas.removeEventListener('pointerdown', onMouseDown);
+
+            zoomInButton.removeEventListener('click', onClickZoomIn);
+            zoomInButton.removeEventListener('click', onClickZoomOut);
         };
     }, []);
 
-    return state;
+    return { ...state, resetOrientation };
 };
 
 export default usePanZoom;
