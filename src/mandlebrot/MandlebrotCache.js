@@ -1,4 +1,4 @@
-import { DEFAULT_MAX_CACHE_SIZE } from './constants.js';
+import { DEFAULT_MAX_CACHE_SIZE } from '../shared/constants.js';
 
 class MandlebrotCache {
     constructor() {

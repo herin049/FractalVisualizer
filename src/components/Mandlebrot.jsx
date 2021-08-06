@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import MandlebrotCache from '../mandlebrot/MandlebrotCache.js';
-import * as Constants from '../mandlebrot/constants.js';
+import * as Constants from '../shared/constants.js';
 import { mapBlockToCanvas, standardPallet } from '../canvas/pallet.js';
 import WorkerPool from '../worker/WorkerPool.js';
 import * as Tasks from '../worker/tasks.js';
@@ -22,13 +22,13 @@ const Mandlebrot = () => {
         resetOrientation,
     } = usePanZoom(
         canvasRef,
-        Constants.DEFAULT_ZOOM,
-        {
-            x: -1 - width / (Constants.DEFAULT_ZOOM * 2),
-            y: -(height / (Constants.DEFAULT_ZOOM * 2)),
-        },
-        Constants.MIN_ZOOM,
-        Constants.MAX_ZOOM,
+        width,
+        height,
+        Constants.MANDLEBROT_DEFAULT_ZOOM,
+        Constants.MANDLEBROT_CENTER_X,
+        Constants.MANDLEBROT_CENTER_Y,
+        Constants.MANDLEBROT_MIN_ZOOM,
+        Constants.MANDLEBROT_MAX_ZOOM,
         Constants.ZOOM_FACTOR,
         Constants.CLICK_ZOOM_FACTOR
     );

@@ -1,4 +1,4 @@
-import { CACHE_BLOCK_SIZE } from './constants.js';
+import { CACHE_BLOCK_SIZE } from '../shared/constants.js';
 
 const calcMandlebrotBlock = (blockX, blockY, blockZoom, maxIter) => {
     const blockData = new Float32Array(CACHE_BLOCK_SIZE * CACHE_BLOCK_SIZE);

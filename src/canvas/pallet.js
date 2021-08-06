@@ -1,4 +1,4 @@
-import { CACHE_BLOCK_SIZE } from '../mandlebrot/constants.js';
+import { CACHE_BLOCK_SIZE } from '../shared/constants.js';
 
 const mapBlockToCanvas = (block, pallet) => {
     const canvas = document.createElement('canvas');

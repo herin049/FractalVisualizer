@@ -1,4 +1,4 @@
-import { CACHE_BLOCK_SIZE } from '../mandlebrot/constants';
+import { CACHE_BLOCK_SIZE } from '../shared/constants';
 
 export const renderBlock = (
     { x, y, zoom, blockCanvas },

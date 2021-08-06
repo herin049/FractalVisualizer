@@ -2,21 +2,27 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 
 const usePanZoom = (
     canvasRef,
-    initialZoom,
-    initialCoords,
+    windowWidth,
+    windowHeight,
+    defaultZoom,
+    centerX,
+    centerY,
     minZoom,
     maxZoom,
     zoomFactor,
     clickZoomFactor
 ) => {
-    const [state, setState] = useState({
-        zoom: initialZoom,
-        coords: initialCoords,
-    });
+    const [state, setState] = useState(() => ({
+        zoom: defaultZoom,
+        coords: {
+            x: centerX - windowWidth / (defaultZoom * 2),
+            y: centerY - windowHeight / (defaultZoom * 2),
+        },
+    }));
 
-    const zoomRef = useRef(initialZoom);
-    const coordsRef = useRef(initialCoords);
-    const panCoordsRef = useRef(null);
+    const zoomRef = useRef(defaultZoom);
+    const coordsRef = useRef(state.coords);
+    const panCoordsRef = useRef(state.coords);
 
     const updateZoom = useCallback((newZoom, dx, dy) => {
         const canvas = canvasRef.current;
@@ -44,7 +50,7 @@ const usePanZoom = (
         coordsRef.current = newCoords;
 
         setState({ zoom: newZoom, coords: newCoords });
-    });
+    }, []);
 
     const onClickZoom = useCallback(zoomIn => {
         const newZoom = zoomIn
@@ -52,7 +58,7 @@ const usePanZoom = (
             : zoomRef.current * (1 - clickZoomFactor);
 
         updateZoom(newZoom, 0.5, 0.5);
-    });
+    }, []);
 
     const onZoom = useCallback(e => {
         const canvas = canvasRef.current;
@@ -94,7 +100,7 @@ const usePanZoom = (
         panCoordsRef.current = null;
         document.removeEventListener('pointermove', onPan);
         document.removeEventListener('pointerup', disablePan);
-    });
+    }, []);
 
     const onMouseDown = useCallback(e => {
         const canvas = canvasRef.current;
@@ -116,15 +122,19 @@ const usePanZoom = (
     }, []);
 
     const resetOrientation = useCallback(() => {
-        zoomRef.current = initialZoom;
-        coordsRef.current = initialCoords;
-        panCoordsRef.current = initialCoords;
+        zoomRef.current = defaultZoom;
+        coordsRef.current = {
+            x: centerX - windowWidth / (defaultZoom * 2),
+            y: centerY - windowHeight / (defaultZoom * 2),
+        };
+
+        panCoordsRef.current = coordsRef.current;
 
         setState({
-            zoom: initialZoom,
-            coords: initialCoords,
+            zoom: defaultZoom,
+            coords: coordsRef.current,
         });
-    }, [initialZoom, initialCoords]);
+    }, [centerX, centerY, windowWidth, windowHeight, defaultZoom]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
