@@ -1,23 +1,33 @@
 import { useRef, useEffect, useCallback } from 'react';
 
-const useThrottledFn = (fn, throttleDelay) => {
+const useThrottledFn = (fn, throttleDelay, deps) => {
     const lastExecution = useRef(0);
     const timeoutId = useRef(null);
-    const fnRef = useRef(fn);
+    const fnCallbackRef = useRef(null);
     const throttleDelayRef = useRef(throttleDelay);
 
+    const fnCallback = useCallback(fn, deps);
+
     useEffect(() => {
-        fnRef.current = fn;
-    }, [fn]);
+        fnCallbackRef.current = fnCallback;
+    }, [fnCallback]);
 
     useEffect(() => {
         throttleDelayRef.current = throttleDelay;
     }, [throttleDelay]);
 
-    return useCallback(() => {
+    useEffect(() => {
+        return () => {
+            if (timeoutId.current !== null) {
+                clearTimeout(timeoutId.current);
+            }
+        };
+    }, []);
+
+    return useCallback((...args) => {
         if (Date.now() - lastExecution.current >= throttleDelayRef.current) {
             // eslint-disable-next-line
-            fnRef.current.apply(null, arguments);
+            fnCallbackRef.current.apply(null, ...args);
             lastExecution.current = Date.now();
             if (timeoutId.current !== null) {
                 clearTimeout(timeoutId.current);
@@ -25,14 +35,15 @@ const useThrottledFn = (fn, throttleDelay) => {
             }
             return true;
         }
-        // eslint-disable-next-line
-        const args = arguments;
-        timeoutId.current = setTimeout(() => {
-            // eslint-disable-next-line
-            fnRef.current.apply(null, args);
-            lastExecution.current = Date.now();
-            timeoutId.current = null;
-        }, throttleDelayRef.current - (Date.now() - lastExecution.current));
+
+        if (timeoutId.current === null) {
+            timeoutId.current = setTimeout(() => {
+                // eslint-disable-next-line
+                fnCallbackRef.current.apply(null, ...args);
+                lastExecution.current = Date.now();
+                timeoutId.current = null;
+            }, throttleDelayRef.current - (Date.now() - lastExecution.current));
+        }
         return false;
     }, []);
 };
