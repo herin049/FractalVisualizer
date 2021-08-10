@@ -47,7 +47,6 @@ const Mandlebrot = () => {
 
     const renderMandlebrot = useThrottledFn(
         () => {
-            console.log(Date.now());
             const currentZoom = canvasZoom;
             const canvasCtx = canvasRef.current.getContext('2d');
 
@@ -132,7 +131,6 @@ const Mandlebrot = () => {
                                     x0,
                                     y0,
                                     closestZoom,
-                                    blockData,
                                     blockCanvas,
                                     false
                                 );
@@ -147,7 +145,6 @@ const Mandlebrot = () => {
                             x0,
                             y0,
                             closestZoom,
-                            null,
                             null,
                             true
                         );
@@ -180,6 +177,8 @@ const Mandlebrot = () => {
                 }
                 return false;
             });
+
+            MandlebrotCache.filterCache();
         },
         200,
         [canvasZoom, reStart, reEnd, imStart, imEnd]

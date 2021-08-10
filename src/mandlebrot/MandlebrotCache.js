@@ -14,12 +14,11 @@ class MandlebrotCache {
         return this.cache.delete(`${x} ${y} ${zoom}`);
     }
 
-    addBlock(x, y, zoom, blockData, blockCanvas, loading) {
+    addBlock(x, y, zoom, blockCanvas, loading) {
         this.cache.set(`${x} ${y} ${zoom}`, {
             x,
             y,
             zoom,
-            blockData,
             blockCanvas,
             loading,
         });
@@ -31,6 +30,20 @@ class MandlebrotCache {
 
     getCacheMap() {
         return this.cache;
+    }
+
+    filterCache() {
+        if (this.cache.size > this.maxCacheSize) {
+            const numToRemove =
+                this.cache.size -
+                Math.max(0.5 * this.maxCacheSize, this.maxCacheSize - 1000);
+            let i = 0;
+            const keysIterator = this.cache.keys();
+            while (i < numToRemove && !keysIterator.done) {
+                this.cache.delete(keysIterator.next().value);
+                i += 1;
+            }
+        }
     }
 
     clear() {
