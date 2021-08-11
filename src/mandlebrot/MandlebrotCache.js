@@ -14,13 +14,14 @@ class MandlebrotCache {
         return this.cache.delete(`${x} ${y} ${zoom}`);
     }
 
-    addBlock(x, y, zoom, blockCanvas, loading) {
+    addBlock(x, y, zoom, blockCanvas, loading, lastViewed) {
         this.cache.set(`${x} ${y} ${zoom}`, {
             x,
             y,
             zoom,
             blockCanvas,
             loading,
+            lastViewed,
         });
     }
 
@@ -34,13 +35,16 @@ class MandlebrotCache {
 
     filterCache() {
         if (this.cache.size > this.maxCacheSize) {
-            const numToRemove =
-                this.cache.size -
-                Math.max(0.5 * this.maxCacheSize, this.maxCacheSize - 1000);
+            const numToRemove = Math.min(this.cache.size * 0.5, 1000);
+
+            const orderedBlocks = [...this.cache].sort(
+                (a, b) => b[1].lastViewed - a[1].lastViewed
+            );
             let i = 0;
-            const keysIterator = this.cache.keys();
-            while (i < numToRemove && !keysIterator.done) {
-                this.cache.delete(keysIterator.next().value);
+
+            while (i < numToRemove && orderedBlocks.length > 0) {
+                const removedBlock = orderedBlocks.pop();
+                this.cache.delete(removedBlock[0]);
                 i += 1;
             }
         }

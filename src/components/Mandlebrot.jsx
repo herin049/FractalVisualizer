@@ -58,12 +58,26 @@ const Mandlebrot = () => {
 
             canvasCtx.clearRect(0, 0, width, height);
 
+            const highestZoom = 2 ** (3 + Math.ceil(Math.log2(currentZoom)));
+
+            MandlebrotCache.getCacheMap().forEach(block => {
+                if (
+                    !block.loading &&
+                    block.zoom <= highestZoom &&
+                    block.x < reEnd &&
+                    block.y < imEnd &&
+                    block.x + Constants.CACHE_BLOCK_SIZE / block.zoom >
+                        reStart &&
+                    block.y + Constants.CACHE_BLOCK_SIZE / block.zoom > imStart
+                ) {
+                    block.lastViewed = Date.now();
+                }
+            });
+
             const sortedBlocks = [...MandlebrotCache.getCacheMap()]
                 .map(e => e[1])
                 .filter(e => !e.loading)
-                .filter(
-                    e => e.zoom <= 2 ** (2 + Math.ceil(Math.log2(currentZoom)))
-                )
+                .filter(e => e.zoom <= highestZoom)
                 .slice()
                 .sort((a, b) => a.zoom - b.zoom);
 
@@ -132,7 +146,8 @@ const Mandlebrot = () => {
                                     y0,
                                     closestZoom,
                                     blockCanvas,
-                                    false
+                                    false,
+                                    Date.now()
                                 );
 
                                 forceUpdate();
@@ -146,7 +161,8 @@ const Mandlebrot = () => {
                             y0,
                             closestZoom,
                             null,
-                            true
+                            true,
+                            Date.now()
                         );
                     }
                 }
