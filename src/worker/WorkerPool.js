@@ -80,6 +80,10 @@ class WorkerPool {
     filterTaskQueue(filterFn) {
         this.taskQueue = this.taskQueue.filter(filterFn);
     }
+
+    clearTaskQueue() {
+        this.taskQueue.splice(0, this.taskQueue.length);
+    }
 }
 
 const instance = new WorkerPool();

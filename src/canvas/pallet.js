@@ -43,7 +43,6 @@ const lerp = (x, y, n) => {
     }));
 };
 
-// eslint-disable-next-line
 const hsvToRgb = (h, s, v) => {
     const hp = h / 60.0;
     const c = Math.min(v, 1) * s;
@@ -76,27 +75,19 @@ const hsvToRgb = (h, s, v) => {
     return color;
 };
 
-const standardPallet = (() => {
+const hsvRedPallet = maxIter => {
     const pallet = [];
     pallet.push({ red: 0, green: 0, blue: 0 });
-    for (let n = 0; n < 2 ** 16; n += 1) {
-        pallet.push(hsvToRgb((360.0 * n) / 500, 1.0, (10 * n) / 500));
+    for (let n = 0; n < 2 * maxIter; n += 1) {
+        pallet.push(
+            hsvToRgb(
+                (360.0 * n) / Math.min(maxIter, 512),
+                1.0,
+                (10 * n) / Math.min(maxIter, 512)
+            )
+        );
     }
     return pallet;
+};
 
-    /*
-    const pallet = [];
-    pallet.push({ red: 0, green: 0, blue: 0 });
-    for (let n = 0; n < 3000; n += 1) {
-        const t = (n % 800) / 800;
-        const red = Math.floor(9 * (1 - t) * t * t * t * 255);
-        const green = Math.floor(15 * (1 - t) * (1 - t) * t * t * 255);
-        const blue = Math.floor(8.5 * (1 - t) * (1 - t) * (1 - t) * t * 255);
-
-        pallet.push({ red, green, blue });
-    }
-    return pallet;
-    */
-})();
-
-export { mapBlockToCanvas, standardPallet };
+export { mapBlockToCanvas, hsvRedPallet };

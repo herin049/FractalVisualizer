@@ -1,12 +1,22 @@
-import React from 'react';
-import Mandlebrot from './Mandlebrot.jsx';
+import React, { useState } from 'react';
+import * as Constants from '../shared/constants.js';
+import Fractal from './Fractal.jsx';
 import Sidebuttons from './Sidebuttons.jsx';
 
 const App = () => {
+    const [settings, setSettings] = useState({
+        maxCacheSize: Constants.DEFAULT_MAX_CACHE_SIZE,
+        numWorkers: window.navigator?.hardwareConcurrency || 2,
+        maxIter: Constants.DEFAULT_MAX_ITER,
+        continuousColoring: Constants.DEFAULT_CONTINUOUS_COLORING,
+        selectedPallet: Constants.DEFAULT_COLOR_PALLET,
+        selectedFractal: Constants.FRACTAL_TYPES.MANDLEBROT,
+    });
+
     return (
         <>
             <Sidebuttons />
-            <Mandlebrot />
+            <Fractal settings={settings} setSettings={setSettings} />
         </>
     );
 };

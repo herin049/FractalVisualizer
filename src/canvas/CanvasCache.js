@@ -1,6 +1,6 @@
 import { DEFAULT_MAX_CACHE_SIZE } from '../shared/constants.js';
 
-class MandlebrotCache {
+class CanvasCache {
     constructor() {
         this.cache = new Map();
         this.maxCacheSize = DEFAULT_MAX_CACHE_SIZE;
@@ -55,6 +55,5 @@ class MandlebrotCache {
     }
 }
 
-const instance = new MandlebrotCache();
-Object.freeze(instance);
+const instance = new CanvasCache();
 export default instance;

@@ -4,7 +4,8 @@ const usePanZoom = (
     canvasRef,
     windowWidth,
     windowHeight,
-    defaultZoom,
+    minPlaneHeight,
+    minPlaneWidth,
     centerX,
     centerY,
     minZoom,
@@ -12,6 +13,8 @@ const usePanZoom = (
     zoomFactor,
     clickZoomFactor
 ) => {
+    const defaultZoom = Math.min(windowHeight / minPlaneHeight, windowWidth / minPlaneWidth);
+
     const [state, setState] = useState(() => ({
         zoom: defaultZoom,
         coords: {

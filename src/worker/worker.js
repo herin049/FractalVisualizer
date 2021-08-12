@@ -5,7 +5,7 @@ import {
 import {
     calcMandlebrotBlock,
     calcMandlebrotBlockSmooth,
-} from '../mandlebrot/math.js';
+} from '../math/mandlebrot.js';
 
 // eslint-disable-next-line
 addEventListener('message', e => {
