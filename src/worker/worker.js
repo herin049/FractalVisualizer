@@ -24,9 +24,6 @@ addEventListener('message', e => {
             postMessage({ taskId, rawBlockData: blockData.buffer }, [
                 blockData.buffer,
             ]);
-            console.log(
-                `[worker.js] Worker ${workerId} completed calculation.`
-            );
             break;
         }
         case CALC_MANDLEBROT_BLOCK_SMOOTH: {
@@ -40,12 +37,9 @@ addEventListener('message', e => {
             postMessage({ taskId, rawBlockData: blockData.buffer }, [
                 blockData.buffer,
             ]);
-            console.log(
-                `[worker.js] Worker ${workerId} completed calculation.`
-            );
             break;
         }
         default:
-            console.error(`[worker.js] Unknown task ${taskType}`);
+            console.error(`[worker.js] (${workerId}) Unknown task ${taskType}`);
     }
 });

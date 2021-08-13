@@ -1,13 +1,18 @@
 import React from 'react';
-import Settings from './Settings.jsx';
 
-const Sidebuttons = () => {
+const Sidebuttons = ({ showSettings, setShowSettings }) => {
     return (
         <>
             <div className="side-button-container">
-                <button className="side-button" type="button">
+                <button
+                    className="side-button"
+                    type="button"
+                    onClick={() => setShowSettings(!showSettings)}
+                >
                     <span className="material-icons">settings</span>
-                    <div className="info-tooltip">Settings</div>
+                    {showSettings || (
+                        <div className="info-tooltip">Settings</div>
+                    )}
                 </button>
                 <a
                     className="side-button"
@@ -33,7 +38,6 @@ const Sidebuttons = () => {
                     <div className="info-tooltip">Reset orientation</div>
                 </button>
             </div>
-            <Settings />
         </>
     );
 };
