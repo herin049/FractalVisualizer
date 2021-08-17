@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import Dropdown from './Dropdown.jsx';
 
 // eslint-disable-next-line
 const Settings = ({ settings, setSettings, setShowSettings }) => {
@@ -11,8 +12,8 @@ const Settings = ({ settings, setSettings, setShowSettings }) => {
     return (
         <div id="settings-overlay" ref={overlayRef}>
             <ul>
-                <li className="settings-title">
-                    Settings
+                <li>
+                    <span className="settings-label">Settings</span>
                     <button
                         id="settings-close-button"
                         type="button"
@@ -20,6 +21,12 @@ const Settings = ({ settings, setSettings, setShowSettings }) => {
                     >
                         <span className="material-icons">close</span>
                     </button>
+                </li>
+                <li>
+                    <div className="section-contaier">
+                        <span className="field-label">Fractal type</span>
+                        <Dropdown />
+                    </div>
                 </li>
             </ul>
         </div>
