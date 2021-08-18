@@ -24,7 +24,9 @@
         "no-else-return": "off",
         "react/prop-types": "off",
         "jsx-a11y/no-noninteractive-tabindex": "off",
-        "no-unused-expressions": "off"
+        "no-unused-expressions": "off",
+        "react/no-array-index-key": "off",
+        "jsx-a11y/no-noninteractive-element-interactions": "off"
     },
     "env": {
         "browser": true

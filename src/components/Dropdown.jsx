@@ -1,46 +1,60 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 
-const Dropdown = () => {
+const Dropdown = ({ options, onUpdateSelectedOption }) => {
     const [active, setActive] = useState(false);
     const containerRef = useRef(null);
+    const deactivateTimeout = useRef(null);
+    const [selectedOption, setSelectedOption] = useState(0);
 
-    const iconClass = `material-icons dropdown-icon${
-        active ? ' dropdown-icon--active' : ''
-    }`;
+    const clearDeactivateTimeout = useCallback(() => {
+        if (deactivateTimeout.current) {
+            clearTimeout(deactivateTimeout.current);
+            deactivateTimeout.current = null;
+        }
+    }, []);
+
+    useEffect(() => () => clearDeactivateTimeout, []);
+
+    const onFocus = () => {
+        clearDeactivateTimeout();
+        setActive(true);
+    };
+
+    const onBlur = () => {
+        if (deactivateTimeout.current === null) {
+            deactivateTimeout.current = setTimeout(() => setActive(false), 0);
+        }
+    };
 
     return (
         <div
             className="dropdown"
-            onClick={() => {
-                active || containerRef.current?.focus();
-                setActive(!active);
-            }}
-            onBlur={() => {
-                console.log('blur');
-                setActive(false);
-            }}
+            onFocus={onFocus}
+            onBlur={onBlur}
             ref={containerRef}
             tabIndex="-1"
         >
-            <span className="dropdown-label">Mandlebrot</span>
-            <span className={iconClass}>unfold_more</span>
+            <span className="dropdown-label">{options[selectedOption]}</span>
+            <span className="material-icons dropdown-icon">unfold_more</span>
             {active && (
                 <ul className="dropdown-options" tabIndex="0">
-                    <li>
-                        <span>Mandlebrot</span>
-                    </li>
-                    <li>
-                        <span>Burning ship</span>
-                    </li>
-                    <li>
-                        <span>Multi-brot</span>
-                    </li>
-                    <li>
-                        <span>Julia</span>
-                    </li>
-                    <li>
-                        <span>Tricorn</span>
-                    </li>
+                    {options.map((e, idx) => (
+                        <li
+                            key={idx}
+                            onClick={() => {
+                                onUpdateSelectedOption(idx);
+                                setSelectedOption(idx);
+                                setActive(false);
+                            }}
+                            className={
+                                idx === selectedOption
+                                    ? 'selected-option'
+                                    : null
+                            }
+                        >
+                            <span>{e}</span>
+                        </li>
+                    ))}
                 </ul>
             )}
         </div>

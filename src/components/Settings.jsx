@@ -9,6 +9,16 @@ const Settings = ({ settings, setSettings, setShowSettings }) => {
         overlayRef.current.style.opacity = 1;
     }, []);
 
+    const fractalOptions = [
+        'Mandlebrot',
+        'Burning ship',
+        'Multi-brot',
+        'Julia',
+        'Tricorn',
+    ];
+
+    const palletOptions = ['HSV Red', 'HSV Blue', 'HSV Green'];
+
     return (
         <div id="settings-overlay" ref={overlayRef}>
             <ul>
@@ -25,8 +35,23 @@ const Settings = ({ settings, setSettings, setShowSettings }) => {
                 <li>
                     <div className="section-contaier">
                         <span className="field-label">Fractal type</span>
-                        <Dropdown />
+                        <Dropdown
+                            options={fractalOptions}
+                            onUpdateSelectedOption={idx => console.log(idx)}
+                        />
+                        <span id="color-pallet-label" className="field-label">
+                            Color pallet
+                        </span>
+                        <Dropdown
+                            options={palletOptions}
+                            onUpdateSelectedOption={idx => console.log(idx)}
+                        />
                     </div>
+                </li>
+                <li>
+                    <button id="apply-button" type="button">
+                        Apply
+                    </button>
                 </li>
             </ul>
         </div>
