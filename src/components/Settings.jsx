@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import Dropdown from './Dropdown.jsx';
+import Checkbox from './Checkbox.jsx';
 
 // eslint-disable-next-line
 const Settings = ({ settings, setSettings, setShowSettings }) => {
@@ -33,7 +34,7 @@ const Settings = ({ settings, setSettings, setShowSettings }) => {
                     </button>
                 </li>
                 <li>
-                    <div className="section-contaier">
+                    <div className="dropdowns-contaier">
                         <span className="field-label">Fractal type</span>
                         <Dropdown
                             options={fractalOptions}
@@ -46,10 +47,26 @@ const Settings = ({ settings, setSettings, setShowSettings }) => {
                             options={palletOptions}
                             onUpdateSelectedOption={idx => console.log(idx)}
                         />
+                        <div className="checkbox-container">
+                            <span className="field-label checkbox-label">
+                                Continuous coloring
+                            </span>
+                            <Checkbox
+                                onUpdateChecked={checked =>
+                                    console.log(
+                                        `Checkbox is checked: ${checked}`
+                                    )
+                                }
+                            />
+                        </div>
                     </div>
                 </li>
                 <li>
-                    <button id="apply-button" type="button">
+                    <button
+                        id="apply-button"
+                        type="button"
+                        disabled={false ? true : null}
+                    >
                         Apply
                     </button>
                 </li>
