@@ -34,7 +34,7 @@ const Settings = ({ settings, setSettings, setShowSettings }) => {
                     </button>
                 </li>
                 <li>
-                    <div className="dropdowns-contaier">
+                    <div className="settings-container">
                         <span className="field-label">Fractal type</span>
                         <Dropdown
                             options={fractalOptions}
@@ -58,6 +58,28 @@ const Settings = ({ settings, setSettings, setShowSettings }) => {
                                     )
                                 }
                             />
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div className="settings-container">
+                        <div className="input-container">
+                            <span className="field-label input-label">
+                                Iteration count
+                            </span>
+                            <input type="number" className="number-input" />
+                        </div>
+                        <div className="input-container">
+                            <span className="field-label input-label">
+                                Cache size
+                            </span>
+                            <input type="number" className="number-input" />
+                        </div>
+                        <div className="input-container">
+                            <span className="field-label input-label">
+                                Number of workers
+                            </span>
+                            <input type="number" className="number-input" />
                         </div>
                     </div>
                 </li>

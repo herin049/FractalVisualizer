@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-const Checkbox = ({ onUpdateChecked }) => {
-    const [checked, setChecked] = useState(false);
+const Checkbox = ({ onUpdateChecked, initialState }) => {
+    const [checked, setChecked] = useState(initialState);
     const classes = checked ? 'checkbox checked-checkbox' : 'checkbox';
 
     return (
