@@ -1,24 +1,32 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { FRACTAL_TYPES, COLOR_PALLETS } from '../shared/constants.js';
 import Dropdown from './Dropdown.jsx';
 import Checkbox from './Checkbox.jsx';
+import IntegerInput from './IntegerInput.jsx';
 
 // eslint-disable-next-line
 const Settings = ({ settings, setSettings, setShowSettings }) => {
     const overlayRef = useRef(null);
+
+    const [tentativeSettings, setTentativeSettings] = useState({ ...settings });
+    const [modified, setModified] = useState(false);
 
     useEffect(() => {
         overlayRef.current.style.opacity = 1;
     }, []);
 
     const fractalOptions = [
-        'Mandlebrot',
-        'Burning ship',
-        'Multi-brot',
-        'Julia',
-        'Tricorn',
+        [FRACTAL_TYPES.MANDLEBROT, 'Mandlebrot'],
+        [FRACTAL_TYPES.BURNING_SHIP, 'Burning ship'],
+        [FRACTAL_TYPES.MULTIBROT, 'Multi-brot'],
+        [FRACTAL_TYPES.TRICORN, 'Tricorn'],
     ];
 
-    const palletOptions = ['HSV Red', 'HSV Blue', 'HSV Green'];
+    const palletOptions = [
+        [COLOR_PALLETS.HSV_RED, 'HSV Red'],
+        [COLOR_PALLETS.HSV_BLUE, 'HSV Blue'],
+        [COLOR_PALLETS.HSV_GREEN, 'HSV Green'],
+    ];
 
     return (
         <div id="settings-overlay" ref={overlayRef}>
@@ -37,26 +45,47 @@ const Settings = ({ settings, setSettings, setShowSettings }) => {
                     <div className="settings-container">
                         <span className="field-label">Fractal type</span>
                         <Dropdown
-                            options={fractalOptions}
-                            onUpdateSelectedOption={idx => console.log(idx)}
+                            options={fractalOptions.map(e => e[1])}
+                            initialSelectedOption={fractalOptions.findIndex(
+                                e => e[0] === settings.selectedFractal
+                            )}
+                            onUpdateSelectedOption={idx => {
+                                setTentativeSettings({
+                                    ...tentativeSettings,
+                                    selectedFractal: fractalOptions[idx][0],
+                                });
+                                setModified(true);
+                            }}
                         />
                         <span id="color-pallet-label" className="field-label">
                             Color pallet
                         </span>
                         <Dropdown
-                            options={palletOptions}
-                            onUpdateSelectedOption={idx => console.log(idx)}
+                            options={palletOptions.map(e => e[1])}
+                            initialSelectedOption={palletOptions.findIndex(
+                                e => e[0] === settings.selectedPallet
+                            )}
+                            onUpdateSelectedOption={idx => {
+                                setTentativeSettings({
+                                    ...tentativeSettings,
+                                    selectedPallet: palletOptions[idx][0],
+                                });
+                                setModified(true);
+                            }}
                         />
                         <div className="checkbox-container">
                             <span className="field-label checkbox-label">
                                 Continuous coloring
                             </span>
                             <Checkbox
-                                onUpdateChecked={checked =>
-                                    console.log(
-                                        `Checkbox is checked: ${checked}`
-                                    )
-                                }
+                                onUpdateChecked={checked => {
+                                    setTentativeSettings({
+                                        ...tentativeSettings,
+                                        continuousColoring: checked,
+                                    });
+                                    setModified(true);
+                                }}
+                                initialState={settings.continuousColoring}
                             />
                         </div>
                     </div>
@@ -67,19 +96,49 @@ const Settings = ({ settings, setSettings, setShowSettings }) => {
                             <span className="field-label input-label">
                                 Iteration count
                             </span>
-                            <input type="number" className="number-input" />
+                            <IntegerInput
+                                onUpdateValue={n => {
+                                    setTentativeSettings({
+                                        ...tentativeSettings,
+                                        maxIter: Math.max(n, 1),
+                                    });
+                                    setModified(true);
+                                }}
+                                initialValue={settings.maxIter}
+                            />
                         </div>
                         <div className="input-container">
                             <span className="field-label input-label">
                                 Cache size
                             </span>
-                            <input type="number" className="number-input" />
+                            <IntegerInput
+                                onUpdateValue={n => {
+                                    setTentativeSettings({
+                                        ...tentativeSettings,
+                                        maxCacheSize: Math.max(n, 100),
+                                    });
+                                    setModified(true);
+                                }}
+                                initialValue={settings.maxCacheSize}
+                            />
                         </div>
                         <div className="input-container">
                             <span className="field-label input-label">
                                 Number of workers
                             </span>
-                            <input type="number" className="number-input" />
+                            <IntegerInput
+                                onUpdateValue={n => {
+                                    setTentativeSettings({
+                                        ...tentativeSettings,
+                                        numWorkers: Math.min(
+                                            Math.max(n, 1),
+                                            100
+                                        ),
+                                    });
+                                    setModified(true);
+                                }}
+                                initialValue={settings.numWorkers}
+                            />
                         </div>
                     </div>
                 </li>
@@ -87,7 +146,11 @@ const Settings = ({ settings, setSettings, setShowSettings }) => {
                     <button
                         id="apply-button"
                         type="button"
-                        disabled={false ? true : null}
+                        disabled={!modified}
+                        onClick={() => {
+                            setSettings(tentativeSettings);
+                            setModified(false);
+                        }}
                     >
                         Apply
                     </button>

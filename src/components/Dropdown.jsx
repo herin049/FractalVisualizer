@@ -1,10 +1,14 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 
-const Dropdown = ({ options, onUpdateSelectedOption }) => {
+const Dropdown = ({
+    options,
+    initialSelectedOption,
+    onUpdateSelectedOption,
+}) => {
     const [active, setActive] = useState(false);
     const containerRef = useRef(null);
     const deactivateTimeout = useRef(null);
-    const [selectedOption, setSelectedOption] = useState(0);
+    const [selectedOption, setSelectedOption] = useState(initialSelectedOption);
 
     const clearDeactivateTimeout = useCallback(() => {
         if (deactivateTimeout.current) {

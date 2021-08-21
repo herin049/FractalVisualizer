@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const NumberInput = ({ onUpdateValue, initialValue }) => {
+const IntegerInput = ({ onUpdateValue, initialValue }) => {
     const [value, setValue] = useState(initialValue);
 
     return (
@@ -11,10 +11,10 @@ const NumberInput = ({ onUpdateValue, initialValue }) => {
             onChange={e => {
                 const eventValue = e.target?.value;
                 if (eventValue !== null && eventValue !== undefined) {
+                    setValue(eventValue);
                     const parsedValue = parseInt(eventValue, 10);
                     if (Number.isSafeInteger(parsedValue)) {
-                        setValue(parsedValue);
-                        onUpdateValue(value);
+                        onUpdateValue(parsedValue);
                     }
                 }
             }}
@@ -22,4 +22,4 @@ const NumberInput = ({ onUpdateValue, initialValue }) => {
     );
 };
 
-export default NumberInput;
+export default IntegerInput;

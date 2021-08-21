@@ -7,7 +7,12 @@ import * as Constants from '../shared/constants.js';
 import * as Tasks from '../worker/tasks.js';
 import WorkerPool from '../worker/WorkerPool.js';
 import CanvasCache from '../canvas/CanvasCache.js';
-import { mapBlockToCanvas, hsvRedPallet } from '../canvas/pallet.js';
+import {
+    mapBlockToCanvas,
+    hsvRedPallet,
+    hsvBluePallet,
+    hsvGreenPallet,
+} from '../canvas/pallet.js';
 import { renderBlock } from '../canvas/renderUtils.js';
 
 const Fractal = ({ settings }) => {
@@ -15,16 +20,11 @@ const Fractal = ({ settings }) => {
     const forceUpdate = useForceUpdate();
     const canvasRef = useRef(null);
     const palletRef = useRef(null);
+    const fractalTaskRef = useRef(null);
     const maxIterRef = useRef(null);
 
-    const {
-        maxCacheSize,
-        numWorkers,
-        maxIter,
-        continuousColoring,
-        selectedPallet,
-        selectedFractal,
-    } = settings;
+    const { maxIter, continuousColoring, selectedPallet, selectedFractal } =
+        settings;
 
     let fractalTask;
     let minHeight;
@@ -33,6 +33,39 @@ const Fractal = ({ settings }) => {
     let centerY;
 
     switch (selectedFractal) {
+        case Constants.FRACTAL_TYPES.BURNING_SHIP: {
+            minHeight = Constants.BURNING_SHIP_MIN_HEIGHT;
+            minWidth = Constants.BURNING_SHIP_MIN_WIDTH;
+            centerX = Constants.BURNING_SHIP_CENTER_X;
+            centerY = Constants.BURNING_SHIP_CENTER_Y;
+
+            fractalTask = continuousColoring
+                ? Tasks.CALC_BURNING_SHIP_BLOCK_SMOOTH
+                : Tasks.CALC_BURNING_SHIP_BLOCK;
+            break;
+        }
+        case Constants.FRACTAL_TYPES.MULTIBROT: {
+            minHeight = Constants.MULTIBROT_MIN_HEIGHT;
+            minWidth = Constants.MULTIBROT_MIN_WIDTH;
+            centerX = Constants.MULTIBROT_CENTER_X;
+            centerY = Constants.MULTIBROT_CENTER_Y;
+
+            fractalTask = continuousColoring
+                ? Tasks.CALC_MULTIBROT_BLOCK_SMOOTH
+                : Tasks.CALC_MULTIBROT_BLOCK;
+            break;
+        }
+        case Constants.FRACTAL_TYPES.TRICORN: {
+            minHeight = Constants.TRICORN_MIN_HEIGHT;
+            minWidth = Constants.TRICORN_MIN_WIDTH;
+            centerX = Constants.TRICORN_CENTER_X;
+            centerY = Constants.TRICORN_CENTER_Y;
+
+            fractalTask = continuousColoring
+                ? Tasks.CALC_TRICORN_BLOCK_SMOOTH
+                : Tasks.CALC_TRICORN_BLOCK;
+            break;
+        }
         case Constants.FRACTAL_TYPES.MANDLEBROT:
         default: {
             minHeight = Constants.MANDLEBROT_MIN_HEIGHT;
@@ -48,23 +81,29 @@ const Fractal = ({ settings }) => {
     }
 
     useEffect(() => {
-        CanvasCache.setMaxCacheSize(maxCacheSize);
-    }, [maxCacheSize]);
-
-    useEffect(() => {
-        WorkerPool.resize(numWorkers);
-    }, [numWorkers]);
-
-    useEffect(() => {
         CanvasCache.clear();
         WorkerPool.clearTaskQueue();
         switch (selectedPallet) {
+            case Constants.COLOR_PALLETS.HSV_BLUE: {
+                palletRef.current = hsvBluePallet(maxIter);
+                break;
+            }
+            case Constants.COLOR_PALLETS.HSV_GREEN: {
+                palletRef.current = hsvGreenPallet(maxIter);
+                break;
+            }
             case Constants.COLOR_PALLETS.HSV_RED:
             default: {
                 palletRef.current = hsvRedPallet(maxIter);
             }
         }
     }, [selectedPallet, maxIter]);
+
+    useEffect(() => {
+        CanvasCache.clear();
+        WorkerPool.clearTaskQueue();
+        fractalTaskRef.current = fractalTask;
+    }, [fractalTask]);
 
     useEffect(() => {
         maxIterRef.current = maxIter;
@@ -170,14 +209,23 @@ const Fractal = ({ settings }) => {
                         by1 > y0 &&
                         !CanvasCache.hasBlock(bx0, by0, closestZoom)
                     ) {
-                        WorkerPool.postTask(fractalTask, {
+                        const currentTask = fractalTaskRef.current;
+                        WorkerPool.postTask(currentTask, {
                             blockX: bx0,
                             blockY: by0,
                             blockZoom: closestZoom,
                             maxIter,
                         })
                             .then(({ rawBlockData }) => {
-                                if (maxIterRef.current !== maxIter) {
+                                if (
+                                    maxIterRef.current !== maxIter ||
+                                    currentTask !== fractalTaskRef.current
+                                ) {
+                                    CanvasCache.removeBlock(
+                                        bx0,
+                                        by0,
+                                        closestZoom
+                                    );
                                     return;
                                 }
 
@@ -224,6 +272,7 @@ const Fractal = ({ settings }) => {
                 const { blockX, blockY, blockZoom } = task.args;
                 if (
                     task.taskType === fractalTask &&
+                    task.args?.maxIter === maxIter &&
                     blockX < x1 &&
                     blockY < y1 &&
                     blockX + Constants.CACHE_BLOCK_SIZE / blockZoom > x0 &&

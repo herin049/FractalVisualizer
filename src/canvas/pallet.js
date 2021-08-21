@@ -75,19 +75,25 @@ const hsvToRgb = (h, s, v) => {
     return color;
 };
 
-const hsvRedPallet = maxIter => {
+const hsvPallet = (maxIter, start, direction) => {
     const pallet = [];
     pallet.push({ red: 0, green: 0, blue: 0 });
     for (let n = 0; n < 2 * maxIter; n += 1) {
         pallet.push(
             hsvToRgb(
-                (360.0 * n) / Math.min(maxIter, 512),
+                start + (direction * (360.0 * n)) / Math.max(maxIter, 256),
                 1.0,
-                (10 * n) / Math.min(maxIter, 512)
+                (10 * n) / Math.max(maxIter, 256)
             )
         );
     }
     return pallet;
 };
 
-export { mapBlockToCanvas, hsvRedPallet };
+const hsvRedPallet = maxIter => hsvPallet(maxIter, 0, 1);
+
+const hsvBluePallet = maxIter => hsvPallet(maxIter, 240, 1);
+
+const hsvGreenPallet = maxIter => hsvPallet(maxIter, 130, -1);
+
+export { mapBlockToCanvas, hsvRedPallet, hsvBluePallet, hsvGreenPallet };

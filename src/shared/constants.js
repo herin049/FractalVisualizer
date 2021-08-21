@@ -13,7 +13,6 @@ export const FRACTAL_TYPES = {
     BURNING_SHIP: 1,
     MULTIBROT: 2,
     TRICORN: 3,
-    JULIA: 4,
 };
 
 export const COLOR_PALLETS = {
@@ -22,7 +21,7 @@ export const COLOR_PALLETS = {
     HSV_GREEN: 2,
 };
 
-export const DEFAULT_MAX_ITER = 1024;
+export const DEFAULT_MAX_ITER = 256;
 export const DEFAULT_CONTINUOUS_COLORING = true;
 export const DEFAULT_COLOR_PALLET = COLOR_PALLETS.HSV_RED;
 export const DEFAULT_FRACTAL = FRACTAL_TYPES.MANDLEBROT;
@@ -31,3 +30,18 @@ export const MANDLEBROT_CENTER_X = -1;
 export const MANDLEBROT_CENTER_Y = 0;
 export const MANDLEBROT_MIN_HEIGHT = 2.5;
 export const MANDLEBROT_MIN_WIDTH = 4;
+
+export const BURNING_SHIP_CENTER_X = 0;
+export const BURNING_SHIP_CENTER_Y = -0.5;
+export const BURNING_SHIP_MIN_HEIGHT = 3;
+export const BURNING_SHIP_MIN_WIDTH = 3;
+
+export const MULTIBROT_CENTER_X = 0;
+export const MULTIBROT_CENTER_Y = 0;
+export const MULTIBROT_MIN_HEIGHT = 4;
+export const MULTIBROT_MIN_WIDTH = 4;
+
+export const TRICORN_CENTER_X = 0;
+export const TRICORN_CENTER_Y = 0;
+export const TRICORN_MIN_HEIGHT = 4;
+export const TRICORN_MIN_WIDTH = 4;
