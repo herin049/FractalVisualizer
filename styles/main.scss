@@ -37,8 +37,7 @@ canvas {
     border: 1px solid rgba(128, 128, 128, 0.5);
     box-shadow: 1px 4px 10px rgba(64, 64, 64, 0.1);
     text-align: center;
-    margin-top: 5px;
-    margin-bottom: 5px;
+    margin: 5px 0;
     text-decoration: none;
 
     &:hover {
@@ -52,6 +51,12 @@ canvas {
     font-weight: bold;
     color: $icon-color;
     transition: color 0.1s ease-in-out;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .side-button:hover > span {
@@ -131,7 +136,7 @@ canvas {
     visibility: hidden;
     position: absolute;
     top: 50%;
-    left: 50px;
+    left: 125%;
     padding: 7px 14px 7px 14px;
     color: white;
     background-color: #424242d4;
@@ -146,6 +151,12 @@ canvas {
     opacity: 0;
     transition: visibility 0s linear 0s, opacity 300ms;
     z-index: 2;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .side-button:hover .info-tooltip,
