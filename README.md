@@ -44,7 +44,7 @@ assigning a variety of colors to points outside the set depending on how fast th
   ```
   or build the project by running
   ```bash
-    npm build
+    npm run-script build
   ```
 
 
