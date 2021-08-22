@@ -9,7 +9,7 @@ A simple but powerful fractal visualizer build with React.
 ![mandlebrot](https://user-images.githubusercontent.com/40302054/130337421-941c3da8-d56a-40f0-a6d3-9ac7ed9dea40.png)
 
 ## Demo
-An in browser demo can be viewed here
+An in browser demo can be viewed [here](https://herin049.github.io/fractalvisualizer/)
 
 ## Overview
 
