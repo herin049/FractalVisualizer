@@ -2,7 +2,7 @@
 # Fractal Visualizer
 
 <p align="center">
-A simple but powerful fractal visualizer build with React.
+A simple but powerful fractal visualizer built with React.
 </p>
 
 
